@@ -1,4 +1,4 @@
-import { Directive, Input } from '@angular/core';
+import { Directive, Input, forwardRef } from '@angular/core';
 import * as THREE from 'three';
 
 export abstract class LightComponent {

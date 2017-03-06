@@ -34,11 +34,8 @@ export class RendererComponent {
     if(changes.isVRMode && changes.isVRMode.currentValue && this.controlsComps) {
         this.controlsComps.forEach((cc) => {
             if (cc.isVRMode) {
-                if (!cc.controls) {
-                    cc.enabled = true
-                    cc.setupControls(this.camera, this.renderer)
-                }
-                cc.requestVR(this.renderer.domElement)
+                cc.enabled = true
+                cc.setupControls(this.camera, this.renderer)
             }
         })
     }
@@ -52,8 +49,8 @@ export class RendererComponent {
     this.cameraComp.updateRenderSize(this.renderer.getSize());
 
     this.controlsComps.forEach((cc) => {
-      cc.setupControls(this.camera, this.renderer);
-    }
+        cc.setupControls(this.camera, this.renderer);
+    })
 
     this.render();
   }
@@ -61,7 +58,7 @@ export class RendererComponent {
   render() {
     this.controlsComps.forEach((cc) => {
       cc.updateControls(this.scene, this.camera);
-    }
+    })
 
     this.camera.lookAt(this.scene.position);
     this.renderer.render(this.scene, this.camera);
@@ -69,15 +66,15 @@ export class RendererComponent {
     requestAnimationFrame(() => this.render());
   }
 
- @HostListener('window:resize')
- @HostListener('window:vrdisplaypresentchange')
- resetWidthHeight() {
+  @HostListener('window:resize')
+  @HostListener('window:vrdisplaypresentchange')
+  resetWidthHeight() {
      // FIXME what else can be used instead of nativeElement?
-   this.renderer.setSize(this.element.nativeElement.clientWidth, this.element.nativeElement.clientHeight);
-   this.cameraComp.updateRenderSize(this.renderer.getSize());
-   this.controlsComps.forEach((cc) => {
-     cc.updateRenderSize(this.renderer.getSize());
-   }
- }
+     this.renderer.setSize(this.element.nativeElement.clientWidth, this.element.nativeElement.clientHeight);
+     this.cameraComp.updateRenderSize(this.renderer.getSize());
+     this.controlsComps.forEach((cc) => {
+       cc.updateRenderSize(this.renderer.getSize());
+     })
+  }
 
 }

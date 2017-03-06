@@ -1,4 +1,4 @@
-import { Directive, Input } from '@angular/core';
+import { Directive, Input, forwardRef } from '@angular/core';
 import * as THREE from 'three';
 
 export abstract class CameraComponent {
@@ -6,7 +6,7 @@ export abstract class CameraComponent {
     abstract get camera(): THREE.Camera
     updateRenderSize(size): void {}
     ngAfterViewInit() {
-        this.camera.lookAt(this.lookAt)
+        this.camera.lookAt(new THREE.Vector3(...this.lookAt))
     }
 }
 

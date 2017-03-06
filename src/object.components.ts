@@ -1,4 +1,4 @@
-import { ContentChildren, Directive, Input } from '@angular/core';
+import { ContentChildren, Directive, Input, forwardRef, QueryList } from '@angular/core';
 import * as THREE from 'three';
 import 'three/examples/js/loaders/MTLLoader.js';
 import 'three/examples/js/loaders/OBJLoader.js';
