@@ -4,7 +4,7 @@ import { RendererComponent } from './renderer.components';
 import { PerspectiveCameraComponent } from './camera.components';
 import { AmbientLightComponent, PointLightComponent } from './light.components';
 import { SceneComponent } from './scene.components';
-import { TrackballControlsComponent, VRControlsComponent } from './control.components';
+import { TrackballControlsComponent } from './control.components';
 import { ObjComponent, MtlComponent, TerrainComponent } from './object.components';
 
 @NgModule({
@@ -15,7 +15,6 @@ import { ObjComponent, MtlComponent, TerrainComponent } from './object.component
       PointLightComponent,
       SceneComponent,
       TrackballControlsComponent,
-      VRControlsComponent,
       ObjComponent,
       MtlComponent,
       TerrainComponent
@@ -30,7 +29,6 @@ import { ObjComponent, MtlComponent, TerrainComponent } from './object.component
       PointLightComponent,
       SceneComponent,
       TrackballControlsComponent,
-      VRControlsComponent,
       ObjComponent,
       MtlComponent,
       TerrainComponent
