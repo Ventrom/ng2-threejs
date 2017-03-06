@@ -8,10 +8,9 @@ export abstract class ObjectComponent {
     abstract attachScene(scene: THREE.Scene): void
 }
 
-@Directive({'three-mtl'})
+@Directive({selector: 'three-mtl'})
 export class MtlComponent {
     @Input() mtlFile = null;
-
 }
 
 @Directive({

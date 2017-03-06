@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RendererComponent } from './render.components';
+import { RendererComponent } from './renderer.components';
 import { PerspectiveCameraComponent } from './camera.components';
 import { AmbientLightComponent, PointLightComponent } from './light.components';
 import { SceneComponent } from './scene.components';
