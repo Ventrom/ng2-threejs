@@ -79,8 +79,7 @@ export class TerrainComponent extends ObjectComponent {
 
     this.manager.onProgress = (item, loaded, total) => {
         console.log(item)
-        console.log(loaded)
-        console.log(total)
+        console.log(`Loaded ${loaded} of ${total}`)
     };
   }
 
