@@ -1,0 +1,28 @@
+{
+  "name": "ng2-threejs",
+  "version": "1.0.0",
+  "description": "Angular components for WebGL scenes rendered with Threejs",
+  "main": "index.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ventrom/ng2-threejs.git"
+  },
+  "keywords": [
+    "angular"
+  ],
+  "author": "Ventrom LLC",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Ventrom/ng2-threejs/issues"
+  },
+  "homepage": "https://github.com/Ventrom/ng2-threejs#readme",
+  "dependencies": {
+    "@angular/common": "^2.4.4",
+    "@angular/core": "^2.4.4",
+    "rxjs": "^5.0.1",
+    "three": "^0.84.0"
+  },
+  "devDependencies": {
+    "typescript": "^2.0.3"
+  }
+}
