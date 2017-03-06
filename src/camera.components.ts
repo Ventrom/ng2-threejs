@@ -6,7 +6,7 @@ export abstract class CameraComponent {
     abstract get camera(): THREE.Camera
     updateRenderSize(size): void {}
     ngAfterViewInit() {
-        this.camera.lookAt(new THREE.Vector3(...this.lookAt))
+        this.camera.lookAt(new THREE.Vector3(this.lookAt[0], this.lookAt[1], this.lookAt[2]))
     }
 }
 
@@ -37,7 +37,7 @@ export class PerspectiveCameraComponent extends CameraComponent {
       this.near,
       this.far);
 
-    this._camera.position.set(...this.position);
+    this._camera.position.set(this.position[0], this.position[1], this.position[2]);
   }
 
   updateRenderSize(size): void {

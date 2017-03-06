@@ -1,9 +1,6 @@
 import { Directive, Input, forwardRef } from '@angular/core';
 import * as THREE from 'three';
 import 'three/examples/js/controls/TrackballControls.js';
-import 'webvr-polyfill';
-import 'three/examples/js/controls/VRControls.js';
-import 'three/examples/js/effects/VREffect.js';
 
 export abstract class ControlsComponent {
     @Input() enabled: boolean = true;
@@ -44,50 +41,3 @@ export class TrackballControlsComponent extends ControlsComponent {
 
 }
 
-@Directive({
-    selector: 'three-vr-controls',
-    providers: [{provide: ControlsComponent, useExisting: forwardRef(() => VRControlsComponent) }]
- })
-export class VRControlsComponent extends ControlsComponent {
-
-  private _controls: THREE.VRControls;
-  private _effect: THREE.VREffect;
-
-  get isVRMode() {return true}
-  get controls() {return this._controls}
-
-  setupControls(camera: THREE.Camera, renderer: THREE.WebGLRenderer): void {
-    if(this.enabled) {
-      this._controls = new THREE.VRControls(camera);
-      this._effect = new THREE.VREffect(renderer);
-      this.updateRenderSize(renderer.getSize());
-      this.requestVR();
-    }
-  }
-
-  updateControls(scene: THREE.Scene, camera: THREE.Camera): void {
-    if(this._controls && this._effect) {
-      this._controls.update();
-      this._effect.render(scene, camera);
-    }
-  }
-
-  updateRenderSize(size): void {
-    if(this._effect) {
-      this._effect.setSize(size.width, size.height);
-    }
-  }
-
-  requestVR() {
-    if(this._effect) {
-      this._effect.requestPresent();
-    }
-  }
-
-  resetVR() {
-    if(this._controls) {
-      this._controls.resetPose();
-    }
-  }
-
-}
