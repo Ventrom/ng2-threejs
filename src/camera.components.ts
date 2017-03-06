@@ -2,8 +2,12 @@ import { Directive, Input } from '@angular/core';
 import * as THREE from 'three';
 
 export abstract class CameraComponent {
+    @Input() lookAt = [0, 0, 0]
     abstract get camera(): THREE.Camera
     updateRenderSize(size): void {}
+    ngAfterViewInit() {
+        this.camera.lookAt(this.lookAt)
+    }
 }
 
 @Directive({
@@ -12,7 +16,7 @@ export abstract class CameraComponent {
 })
 export class PerspectiveCameraComponent extends CameraComponent {
 
-  @Input() positions = [0, 0, 0];
+  @Input() position = [0, -10, 10];
   @Input() viewAngle: number = 75;
   near: number = 0.1;
   far: number = 10000;
@@ -33,10 +37,7 @@ export class PerspectiveCameraComponent extends CameraComponent {
       this.near,
       this.far);
 
-    this._camera.position.set(
-      this.positions[0],
-      this.positions[1],
-      this.positions[2]);
+    this._camera.position.set(...this.position);
   }
 
   updateRenderSize(size): void {
