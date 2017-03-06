@@ -16,6 +16,7 @@ export class RendererComponent {
   @ContentChildren(ControlsComponent) controlsComps: QueryList<ControlsComponent>;
 
   renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
+    alpha: true,
     antialias: true
   });
 
