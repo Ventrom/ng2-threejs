@@ -61,7 +61,6 @@ export class RendererComponent {
       cc.updateControls(this.scene, this.camera);
     })
 
-    this.camera.lookAt(this.scene.position);
     this.renderer.render(this.scene, this.camera);
 
     requestAnimationFrame(() => this.render());
