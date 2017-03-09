@@ -17,9 +17,9 @@ export abstract class CameraComponent {
 export class PerspectiveCameraComponent extends CameraComponent {
 
   @Input() position = [0, -10, 10];
-  @Input() viewAngle: number = 75;
+  @Input() fov: number = 50;
   near: number = 0.1;
-  far: number = 10000;
+  far: number = 2000;
   private _camera: THREE.PerspectiveCamera;
 
   get camera(): THREE.Camera {
@@ -32,7 +32,7 @@ export class PerspectiveCameraComponent extends CameraComponent {
 
   ngOnInit() {
     this._camera = new THREE.PerspectiveCamera(
-      this.viewAngle,
+      this.fov,
       this.aspect,
       this.near,
       this.far);

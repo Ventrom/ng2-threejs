@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import 'three/examples/js/loaders/MTLLoader.js';
 import 'three/examples/js/loaders/OBJLoader.js';
 import './loaders/terrain-loader.js';
+import { dirname, basename } from 'path';
 
 export abstract class ObjectComponent {
     abstract attachScene(scene: THREE.Scene): void
@@ -24,13 +25,14 @@ export class MtlComponent {
      manager = new THREE.LoadingManager();
      objects = [];
 
-     ngOnInit() {
+     ngAfterContentInit() {
          let self = this
          if (self.mtlComps) {
              self.mtlComps.forEach((mtl) => {
-                 if (!mtl.mtlFile) return;
+                 if (mtl.mtlFile === null) return;
                  let loader = new THREE['MTLLoader'](self.manager);
-                 loader.load(mtl.mtlFile, function ( materials ) {
+                 loader.setPath(dirname(mtl.mtlFile) + '/');
+                 loader.load(basename(mtl.mtlFile), function ( materials ) {
                      materials.preload();
                      self.objects = materials;
                  });
@@ -40,11 +42,12 @@ export class MtlComponent {
 
      attachScene(scene: THREE.Scene): void {
          let self = this
-         if (!self.objFile) return
+         if (self.objFile === null) return
          self.manager.onLoad = () => {
            let objLoader = new THREE['OBJLoader']();
            objLoader.setMaterials(self.objects);
-           objLoader.load(self.objFile, function (object) {
+           objLoader.setPath(dirname(self.objFile) + '/');
+           objLoader.load(basename(self.objFile), function (object) {
                scene.add(object);
            });
          };
