@@ -2,10 +2,10 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RendererComponent } from './renderer.components';
 import { PerspectiveCameraComponent } from './camera.components';
-import { AmbientLightComponent, PointLightComponent } from './light.components';
+import { AmbientLightComponent, PointLightComponent, DirectionalLightComponent } from './light.components';
 import { SceneComponent } from './scene.components';
 import { TrackballControlsComponent } from './control.components';
-import { ObjComponent, MtlComponent, TerrainComponent } from './object.components';
+import { ObjComponent, MtlComponent, ColladaComponent, FBXComponent, TerrainComponent } from './object.components';
 
 @NgModule({
   declarations: [
@@ -13,10 +13,13 @@ import { ObjComponent, MtlComponent, TerrainComponent } from './object.component
       PerspectiveCameraComponent,
       AmbientLightComponent,
       PointLightComponent,
+      DirectionalLightComponent,
       SceneComponent,
       TrackballControlsComponent,
       ObjComponent,
       MtlComponent,
+      ColladaComponent,
+      FBXComponent,
       TerrainComponent
  ],
   imports: [
@@ -27,10 +30,13 @@ import { ObjComponent, MtlComponent, TerrainComponent } from './object.component
       PerspectiveCameraComponent,
       AmbientLightComponent,
       PointLightComponent,
+      DirectionalLightComponent,
       SceneComponent,
       TrackballControlsComponent,
       ObjComponent,
       MtlComponent,
+      ColladaComponent,
+      FBXComponent,
       TerrainComponent
   ]
 })

@@ -2,6 +2,8 @@ import { ContentChildren, Directive, Input, forwardRef, QueryList } from '@angul
 import * as THREE from 'three';
 import 'three/examples/js/loaders/MTLLoader.js';
 import 'three/examples/js/loaders/OBJLoader.js';
+import 'three/examples/js/loaders/ColladaLoader.js';
+import 'three/examples/js/loaders/FBXLoader2.js';
 import './loaders/terrain-loader.js';
 import { dirname, basename } from 'path';
 
@@ -51,6 +53,38 @@ export class MtlComponent {
                scene.add(object);
            });
          };
+     }
+}
+
+@Directive({
+    selector: 'three-dae',
+    providers: [{provide: ObjectComponent, useExisting: forwardRef(() => ColladaComponent) }]
+ })
+ export class ColladaComponent extends ObjectComponent {
+     @Input() daeFile = null;
+
+     attachScene(scene: THREE.Scene): void {
+         if (this.daeFile === null) return
+         let loader = new THREE['ColladaLoader']();
+         loader.load(this.daeFile, function (object) {
+             scene.add(object.scene);
+         });
+     }
+}
+
+@Directive({
+    selector: 'three-fbx',
+    providers: [{provide: ObjectComponent, useExisting: forwardRef(() => FBXComponent) }]
+ })
+ export class FBXComponent extends ObjectComponent {
+     @Input() fbxFile = null;
+
+     attachScene(scene: THREE.Scene): void {
+         if (this.fbxFile === null) return
+         let loader = new THREE['FBXLoader']();
+         loader.load(this.fbxFile, function (object) {
+             scene.add(object);
+         });
      }
 }
 
