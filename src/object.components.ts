@@ -11,10 +11,6 @@ import 'three/examples/js/loaders/FBXLoader.js'
 import './loaders/terrain-loader.js'
 
 export abstract class ObjectComponent {
-    constructor(
-        public bboxService: BoundingBoxService
-    ) {}
-
     abstract attachScene(scene: THREE.Scene): void
 }
 
@@ -40,8 +36,8 @@ export class ObjComponent extends ObjectComponent {
     materials: any[] = []
     objects = []
 
-    constructor() {
-        super(new BoundingBoxService())
+    constructor(public bboxService: BoundingBoxService) {
+        super()
     }
 
     ngAfterViewInit() {
