@@ -1,6 +1,8 @@
-import { Directive, Input, forwardRef } from '@angular/core';
-import * as THREE from 'three';
-import 'three/examples/js/controls/TrackballControls.js';
+import { Directive, Input, forwardRef } from '@angular/core'
+
+import * as THREE from 'three'
+import 'three/examples/js/controls/TrackballControls.js'
+import 'three/examples/js/controls/OrbitControls.js'
 
 export abstract class ControlsComponent {
     @Input() enabled: boolean = true;
@@ -16,28 +18,44 @@ export abstract class ControlsComponent {
     providers: [{provide: ControlsComponent, useExisting: forwardRef(() => TrackballControlsComponent) }]
 })
 export class TrackballControlsComponent extends ControlsComponent {
+    private _controls: THREE.TrackballControls
 
-  private _controls: THREE.TrackballControls;
+    get controls() {return this._controls}
 
-  get controls() {return this._controls}
+    setupControls(camera: THREE.Camera, renderer: THREE.WebGLRenderer): void {
+        this._controls = new THREE.TrackballControls(camera, renderer.domElement)
+        this._controls.enabled = this.enabled
+        this._controls.rotateSpeed = 10.0
+        this._controls.zoomSpeed = 0.1
+        this._controls.panSpeed = 0.8
 
-  setupControls(camera: THREE.Camera, renderer: THREE.WebGLRenderer): void {
-    this._controls = new THREE.TrackballControls(camera, renderer.domElement);
-    this._controls.enabled = this.enabled;
-    this._controls.rotateSpeed = 10.0;
-    this._controls.zoomSpeed = 0.1;
-    this._controls.panSpeed = 0.8;
+        this._controls.noZoom = false
+        this._controls.noPan = false
 
-    this._controls.noZoom = false;
-    this._controls.noPan = false;
+        this._controls.staticMoving = true
+        this._controls.dynamicDampingFactor = 0.3
+    }
 
-    this._controls.staticMoving = true;
-    this._controls.dynamicDampingFactor = 0.3;
-  }
-
-  updateControls(scene: THREE.Scene, camera: THREE.Camera): void {
-    this._controls.update();
-  }
-
+    updateControls(scene: THREE.Scene, camera: THREE.Camera): void {
+        this._controls.update()
+    }
 }
 
+@Directive({
+    selector: 'orbit-controls',
+    providers: [{provide: ControlsComponent, useExisting: forwardRef(() => OrbitControlsComponent) }]
+})
+export class OrbitControlsComponent extends ControlsComponent {
+    private _controls: THREE.OrbitControls
+
+    get controls() {return this._controls}
+
+    setupControls(camera: THREE.Camera, renderer: THREE.WebGLRenderer): void {
+        this._controls = new THREE.OrbitControls(camera, renderer.domElement)
+        this._controls.enabled = this.enabled
+    }
+
+    updateControls(scene: THREE.Scene, camera: THREE.Camera): void {
+        this._controls.update()
+    }
+}
