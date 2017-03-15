@@ -3,7 +3,11 @@ import * as THREE from 'three';
 import 'three/examples/js/loaders/MTLLoader.js';
 import 'three/examples/js/loaders/OBJLoader.js';
 import 'three/examples/js/loaders/ColladaLoader.js';
+import 'three/examples/js/loaders/collada/Animation.js';
+import 'three/examples/js/loaders/collada/KeyFrameAnimation.js';
+import 'three/examples/js/loaders/collada/AnimationHandler.js';
 import 'three/examples/js/loaders/FBXLoader2.js';
+import 'three/examples/js/loaders/GLTFLoader.js';
 import './loaders/terrain-loader.js';
 import { dirname, basename } from 'path';
 
@@ -67,7 +71,15 @@ export class MtlComponent {
          if (this.daeFile === null) return
          let loader = new THREE['ColladaLoader']();
          loader.load(this.daeFile, function (object) {
-             scene.add(object.scene);
+             let dae = object.scene;
+             dae.traverse( function ( child ) {
+                 if ( child instanceof THREE.SkinnedMesh && child.geometry['animation'] ) {
+                     var animation = new THREE['Animation']( child, child.geometry['animation'] );
+                     animation.play();
+                 }
+             } );
+             dae.updateMatrix();
+             scene.add(dae);
          });
      }
 }
@@ -83,6 +95,31 @@ export class MtlComponent {
          if (this.fbxFile === null) return
          let loader = new THREE['FBXLoader']();
          loader.load(this.fbxFile, function (object) {
+             scene.add(object);
+         });
+     }
+}
+
+@Directive({
+    selector: 'three-gltf',
+    providers: [{provide: ObjectComponent, useExisting: forwardRef(() => GLTFComponent) }]
+ })
+ export class GLTFComponent extends ObjectComponent {
+     @Input() gltfFile = null;
+
+     attachScene(scene: THREE.Scene): void {
+         if (this.gltfFile === null) return
+         let loader = new THREE['GLTFLoader']();
+         loader.load(this.gltfFile, function (gltf) {
+             var object = gltf.scene !== undefined ? gltf.scene : gltf.scenes[ 0 ];
+             var animations = gltf.animations;
+             if ( animations && animations.length ) {
+                 var mixer = new THREE.AnimationMixer( object );
+                 for ( var i = 0; i < animations.length; i ++ ) {
+                     var animation = animations[ i ];
+                     mixer.clipAction( animation ).play();
+                 }
+             }
              scene.add(object);
          });
      }
