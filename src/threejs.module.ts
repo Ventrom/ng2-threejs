@@ -4,8 +4,8 @@ import { RendererComponent } from './renderer.components';
 import { PerspectiveCameraComponent } from './camera.components';
 import { AmbientLightComponent, PointLightComponent, DirectionalLightComponent } from './light.components';
 import { SceneComponent } from './scene.components';
-import { TrackballControlsComponent } from './control.components';
-import { ObjComponent, MtlComponent, ColladaComponent, FBXComponent, TerrainComponent } from './object.components';
+import { TrackballControlsComponent, OrbitControlsComponent } from './control.components';
+import { ObjComponent, MtlComponent, ColladaComponent, FBXComponent, GLTFComponent, TerrainComponent } from './object.components';
 
 @NgModule({
   declarations: [
@@ -16,10 +16,12 @@ import { ObjComponent, MtlComponent, ColladaComponent, FBXComponent, TerrainComp
       DirectionalLightComponent,
       SceneComponent,
       TrackballControlsComponent,
+      OrbitControlsComponent,
       ObjComponent,
       MtlComponent,
       ColladaComponent,
       FBXComponent,
+      GLTFComponent,
       TerrainComponent
  ],
   imports: [
@@ -33,10 +35,12 @@ import { ObjComponent, MtlComponent, ColladaComponent, FBXComponent, TerrainComp
       DirectionalLightComponent,
       SceneComponent,
       TrackballControlsComponent,
+      OrbitControlsComponent,
       ObjComponent,
       MtlComponent,
       ColladaComponent,
       FBXComponent,
+      GLTFComponent,
       TerrainComponent
   ]
 })

@@ -1,6 +1,7 @@
 import { Directive, Input, forwardRef } from '@angular/core';
 import * as THREE from 'three';
 import 'three/examples/js/controls/TrackballControls.js';
+import 'three/examples/js/controls/OrbitControls.js';
 
 export abstract class ControlsComponent {
     @Input() enabled: boolean = true;
@@ -41,3 +42,24 @@ export class TrackballControlsComponent extends ControlsComponent {
 
 }
 
+@Directive({
+    selector: 'orbit-controls',
+    providers: [{provide: ControlsComponent, useExisting: forwardRef(() => OrbitControlsComponent) }]
+})
+export class OrbitControlsComponent extends ControlsComponent {
+
+    @Input() enabled: boolean = true;
+    
+    private _controls: THREE.OrbitControls;
+    get controls() {return this._controls}
+
+    setupControls(camera: THREE.Camera, renderer: THREE.WebGLRenderer): void {
+        this._controls = new THREE.OrbitControls(camera, renderer.domElement);
+        this._controls.enabled = this.enabled;
+    }
+
+    updateControls(scene: THREE.Scene, camera: THREE.Camera): void {
+        this._controls.update();
+    }
+
+}
