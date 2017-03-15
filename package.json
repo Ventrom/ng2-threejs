@@ -23,6 +23,7 @@
     "three": "^0.84.0"
   },
   "devDependencies": {
-    "typescript": "^2.0.3"
+    "typescript": "^2.0.3",
+    "triangle-centroid": "^1.0.0"
   }
 }
