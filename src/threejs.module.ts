@@ -56,7 +56,7 @@ import { AnimationService } from './services/animation.service'
       ColladaComponent,
       FBXComponent,
       GLTFComponent,
-      TerrainComponent
+      TerrainComponent,
       SpriteComponent,
       SkyboxComponent,
       TextureComponent,
