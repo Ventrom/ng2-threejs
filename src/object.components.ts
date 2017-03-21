@@ -123,27 +123,6 @@ export class ObjComponent extends ObjectComponent {
 @Directive({
     selector: 'three-dae',
     providers: [{provide: ObjectComponent, useExisting: forwardRef(() => ColladaComponent) }]
-<<<<<<< HEAD
- })
- export class ColladaComponent extends ObjectComponent {
-     @Input() daeFile = null;
-
-     attachScene(scene: THREE.Scene): void {
-         if (this.daeFile === null) return
-         let loader = new THREE['ColladaLoader']();
-         loader.load(this.daeFile, function (object) {
-             let dae = object.scene;
-             dae.traverse( function ( child ) {
-                 if ( child instanceof THREE.SkinnedMesh && child.geometry['animation'] ) {
-                     var animation = new THREE['Animation']( child, child.geometry['animation'] );
-                     animation.play();
-                 }
-             } );
-             dae.updateMatrix();
-             scene.add(dae);
-         });
-     }
-=======
 })
 export class ColladaComponent extends ObjectComponent {
     constructor() {
@@ -158,7 +137,6 @@ export class ColladaComponent extends ObjectComponent {
             scene.add(object.scene)
         })
     }
->>>>>>> Code cleanup and small changes
 }
 
 @Directive({
