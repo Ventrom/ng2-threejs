@@ -7,11 +7,11 @@ import { SceneComponent } from './scene.components';
 import { TrackballControlsComponent, OrbitControlsComponent } from './control.components';
 import { ObjComponent, MtlComponent, ColladaComponent, FBXComponent, GLTFComponent, TerrainComponent } from './object.components';
 import { SphereComponent, PlaneComponent } from './primitive.components'
-import { SpriteComponent } from './sprite.component'
 import { SkyboxComponent } from './skybox.component'
 import { TextureComponent } from './texture.component'
 import { BoundingBoxService } from './services/bounding-box.service'
 import { AnimationService } from './services/animation.service'
+import { SpriteService } from './services/sprite.service'
 
 @NgModule({
   declarations: [
@@ -29,7 +29,6 @@ import { AnimationService } from './services/animation.service'
       FBXComponent,
       GLTFComponent,
       TerrainComponent,
-      SpriteComponent,
       SkyboxComponent,
       TextureComponent,
       SphereComponent,
@@ -40,7 +39,8 @@ import { AnimationService } from './services/animation.service'
   ],
   providers: [
       BoundingBoxService,
-      AnimationService
+      AnimationService,
+      SpriteService
   ],
   exports: [
       RendererComponent,
@@ -57,7 +57,6 @@ import { AnimationService } from './services/animation.service'
       FBXComponent,
       GLTFComponent,
       TerrainComponent,
-      SpriteComponent,
       SkyboxComponent,
       TextureComponent,
       SphereComponent,

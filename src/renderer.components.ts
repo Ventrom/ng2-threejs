@@ -1,4 +1,4 @@
-import { Directive, ElementRef, HostListener, Input, ContentChild, ContentChildren, QueryList } from '@angular/core'
+import { Directive, ElementRef, ViewChild, HostListener, Input, ContentChild, ContentChildren, QueryList } from '@angular/core'
 import { SceneComponent } from './scene.components'
 import { ControlsComponent } from './control.components'
 import { CameraComponent } from './camera.components'
@@ -27,9 +27,9 @@ export class RendererComponent {
     }
 
     constructor(
-        private element: ElementRef,
-        private animService: AnimationService) {
-    }
+        private animService: AnimationService,
+        private element: ElementRef
+    ) {}
 
     ngOnChanges(changes) {
         if(changes.isVRMode && changes.isVRMode.currentValue && this.controlsComps) {

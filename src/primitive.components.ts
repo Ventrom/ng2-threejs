@@ -19,7 +19,7 @@ export abstract class PrimitiveComponent {
 export class SphereComponent extends PrimitiveComponent {
     @Input() sphereSize: number = 20
 
-    private _object: THREE.Mesh;
+    private _object: THREE.Mesh
 
     get object(): THREE.Mesh {return this._object}
 
@@ -54,7 +54,7 @@ export class PlaneComponent extends PrimitiveComponent {
     @Input() width: number = 1000
     @Input() height: number = 1000
 
-    private _object: THREE.Mesh;
+    private _object: THREE.Mesh
 
     get object(): THREE.Mesh {return this._object}
 

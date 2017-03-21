@@ -4,7 +4,7 @@ import 'three/examples/js/controls/TrackballControls.js';
 import 'three/examples/js/controls/OrbitControls.js';
 
 export abstract class ControlsComponent {
-    @Input() enabled: boolean = true;
+    @Input() enabled: boolean = true
     get isVRMode(): boolean {return false}
     abstract get controls()
     abstract setupControls(camera: THREE.Camera, renderer: THREE.WebGLRenderer): void
@@ -25,7 +25,7 @@ export class TrackballControlsComponent extends ControlsComponent {
         this._controls = new THREE.TrackballControls(camera, renderer.domElement)
         this._controls.enabled = this.enabled
         this._controls.rotateSpeed = 10.0
-        this._controls.zoomSpeed = 0.1
+        this._controls.zoomSpeed = 0.6
         this._controls.panSpeed = 0.8
 
         this._controls.noZoom = false
@@ -52,8 +52,23 @@ export class OrbitControlsComponent extends ControlsComponent {
     get controls() {return this._controls}
 
     setupControls(camera: THREE.Camera, renderer: THREE.WebGLRenderer): void {
-        this._controls = new THREE.OrbitControls(camera, renderer.domElement);
-        this._controls.enabled = this.enabled;
+        this._controls = new THREE.OrbitControls(camera, renderer.domElement)
+        this._controls.enabled = this.enabled
+        this._controls.rotateSpeed = 2.0
+        this._controls.zoomSpeed = 0.6
+        this._controls.keyPanSpeed = 0.8
+
+        this._controls.enableZoom = true
+        this._controls.enablePan = true
+        this._controls.dampingFactor = 0.5
+
+        // Prevents rotating below ground
+        this._controls.minPolarAngle = 0; // radians
+        this._controls.maxPolarAngle = Math.PI/2.5; // radians
+
+        // Prevents zooming into the ground
+        this._controls.minDistance = 200
+        this._controls.maxDistance = 1500
     }
 
     updateControls(scene: THREE.Scene, camera: THREE.Camera): void {

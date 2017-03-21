@@ -1,5 +1,9 @@
-import { ContentChildren, Directive, Input, forwardRef, QueryList } from '@angular/core';
-import * as THREE from 'three';
+import { ContentChildren, Directive, Input, forwardRef, QueryList } from '@angular/core'
+import { BoundingBoxService } from './services/bounding-box.service'
+import { SpriteService } from './services/sprite.service'
+import { dirname, basename } from 'path'
+
+import * as THREE from 'three'
 import 'three/examples/js/loaders/MTLLoader.js';
 import 'three/examples/js/loaders/OBJLoader.js';
 import 'three/examples/js/loaders/ColladaLoader.js';
@@ -8,18 +12,21 @@ import 'three/examples/js/loaders/collada/KeyFrameAnimation.js';
 import 'three/examples/js/loaders/collada/AnimationHandler.js';
 import 'three/examples/js/loaders/FBXLoader2.js';
 import 'three/examples/js/loaders/GLTFLoader.js';
-import './loaders/terrain-loader.js';
-import { dirname, basename } from 'path';
-import { SpriteComponent } from './sprite.component'
-import { BoundingBoxService } from './services/bounding-box.service'
+import './loaders/terrain-loader.js'
 
 export abstract class ObjectComponent {
+    @Input() file: string
+    @Input() debug: boolean
+    manager: THREE.LoadingManager
+    // The base loader class called THREE.Loader does not have setPath and Load,
+    // so for now set the loader type as any here
+    loader: any
     abstract attachScene(scene: THREE.Scene): void
 }
 
 @Directive({selector: 'three-mtl'})
 export class MtlComponent {
-    @Input() mtlFile = null
+    @Input() file = null
 }
 
 @Directive({
@@ -27,30 +34,35 @@ export class MtlComponent {
     providers: [{provide: ObjectComponent, useExisting: forwardRef(() => ObjComponent) }]
 })
 export class ObjComponent extends ObjectComponent {
-    @Input() objFile = null
-    @ContentChildren(SpriteComponent) spriteComp: any
     @ContentChildren(MtlComponent) mtlComps: QueryList<MtlComponent>
     @Input() addBBox: boolean = false
     @Input() addSprites: boolean = false
-    @Input() debug: boolean = false
+    @Input() scale: number = 1
     bbox: THREE.Box3
     bboxMesh: THREE.Mesh
-    manager = new THREE.LoadingManager()
-    materials: any[] = []
-    objects = []
+    materials: THREE.Material[] = []
+    objects: THREE.Object3D[] = []
+    sprites: THREE.Sprite[] = []
+    // Can't use the dynamic THREE['OBJLoader'] type here
+    objLoader: any
 
-    constructor(public bboxService: BoundingBoxService) {
+    constructor(
+        public bboxService: BoundingBoxService,
+        public spriteService: SpriteService
+    ) {
         super()
+        this.manager = new THREE.LoadingManager()
+        this.loader = new THREE['MTLLoader'](this.manager)
+        this.objLoader = new THREE['OBJLoader']()
     }
 
     ngAfterViewInit() {
         let self = this
-        if (self.mtlComps) {
-            self.mtlComps.forEach((mtl) => {
-                if (mtl.mtlFile === null) return;
-                let loader = new THREE['MTLLoader'](self.manager)
-                loader.setPath(dirname(mtl.mtlFile) + '/')
-                loader.load(basename(mtl.mtlFile), function ( materials ) {
+        if (this.mtlComps) {
+            this.mtlComps.forEach((mtl) => {
+                if (mtl.file === null) return
+                this.loader.setPath(dirname(mtl.file) + '/')
+                this.loader.load(basename(mtl.file), function ( materials ) {
                     materials.preload()
                     self.materials = materials
                 })
@@ -71,48 +83,20 @@ export class ObjComponent extends ObjectComponent {
 
     attachScene(scene: THREE.Scene): void {
         let self = this
-        if (self.objFile === null) return
+        if (this.file === null) return
         self.manager.onLoad = () => {
-            let objLoader = new THREE['OBJLoader']()
-            objLoader.setMaterials(self.materials)
-            objLoader.setPath(dirname(self.objFile) + '/')
-            objLoader.load(basename(self.objFile), function (object) {
+            self.objLoader.setMaterials(self.materials)
+            self.objLoader.setPath(dirname(self.file) + '/')
+            self.objLoader.load(basename(self.file), function (object) {
                 // After the object has been loaded make a cube around it so we can write information
-                object.scale.set(20,20,20)
+                object.scale.set(self.scale, self.scale, self.scale)
                 self.objects.push(object)
                 if (self.addBBox) {
                     self.bboxMesh = self.bboxService.addBBoxToObject(object)
                     self.objects.push(self.bboxMesh)
 
                     if (self.addSprites) {
-                        let spriteComp = self.spriteComp.toArray()[0]
-                        self.bboxMesh.geometry['faces'].forEach((f, i) => {
-                            // Make the sprites a bit far from the cube mesh
-                            let sPos = f.centroid.clone()
-                            sPos = sPos.multiplyScalar(1.2)
-
-                            // The first parameter is the text message to be used on the sprite. At the moment
-                            // only a certain length of message is supported properly
-                            spriteComp.addSprite(
-                                //i,
-                                ' ' + sPos.x.toFixed(2) + ', ' + sPos.y.toFixed(2) + ', ' + sPos.z.toFixed(2) + ' ',
-                                /*'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean in nisi nisl. Integer eu sem in turpis laoreet mollis lobortis et ipsum. ' +
-                                + 'Phasellus sit amet ultricies felis. Phasellus feugiat neque eros. Donec vel mauris posuere, finibus lacus tristique, molestie felis. Proin ' +
-                                + 'ultricies auctor nunc, quis molestie quam pellentesque ac. Praesent et purus convallis, dictum tellus non, congue purus. Ut venenatis urna ' +
-                                + 'a velit convallis varius ut in nisi. Donec felis est, rutrum id massa id, sollicitudin ornare ex. Nulla facilisi. Vestibulum tincidunt ' +
-                                + 'eleifend convallis. Curabitur gravida consequat tellus ut tempor. ',*/
-                                { fontsize: 32, backgroundColor: {r:100, g:100, b:255, a:1} }
-                            )
-                            if (self.debug) {
-                                console.log('Current face:')
-                                console.log(f)
-                                console.log('Current centroid position:')
-                                console.log(sPos)
-                                console.log('Current sprite info: ')
-                                console.log(spriteComp.spriteArray[i])
-                            }
-                            spriteComp.spriteArray[i].position.set(sPos.x, sPos.y, sPos.z)
-                        })
+                        self.sprites = self.spriteService.addSpritesToFaces(self.bboxMesh.geometry, "center", ['Test'])
                     }
                 }
 
@@ -125,7 +109,7 @@ export class ObjComponent extends ObjectComponent {
 
                     // Only add the sprite if we have a bounding box
                     if (self.addSprites) {
-                        self.spriteComp.toArray()[0].spriteArray.forEach((s) => {
+                        self.sprites.forEach((s) => {
                             scene.add(s)
                         })
                     }
@@ -139,6 +123,7 @@ export class ObjComponent extends ObjectComponent {
 @Directive({
     selector: 'three-dae',
     providers: [{provide: ObjectComponent, useExisting: forwardRef(() => ColladaComponent) }]
+<<<<<<< HEAD
  })
  export class ColladaComponent extends ObjectComponent {
      @Input() daeFile = null;
@@ -158,6 +143,22 @@ export class ObjComponent extends ObjectComponent {
              scene.add(dae);
          });
      }
+=======
+})
+export class ColladaComponent extends ObjectComponent {
+    constructor() {
+        super()
+        // This loader does not accept a manager as a parameter
+        this.loader = new THREE['ColladaLoader']()
+    }
+
+    attachScene(scene: THREE.Scene): void {
+        if (this.file === null) return
+        this.loader.load(this.file, function (object) {
+            scene.add(object.scene)
+        })
+    }
+>>>>>>> Code cleanup and small changes
 }
 
 @Directive({
@@ -165,12 +166,15 @@ export class ObjComponent extends ObjectComponent {
     providers: [{provide: ObjectComponent, useExisting: forwardRef(() => FBXComponent) }]
 })
 export class FBXComponent extends ObjectComponent {
-    @Input() fbxFile = null;
+    constructor() {
+        super()
+        this.manager = new THREE.LoadingManager()
+        this.loader = new THREE['FBXLoader'](this.manager)
+    }
 
     attachScene(scene: THREE.Scene): void {
-        if (this.fbxFile === null) return
-        let loader = new THREE['FBXLoader']()
-        loader.load(this.fbxFile, function (object) {
+        if (this.file === null) return
+        this.loader.load(this.file, function (object) {
             scene.add(object)
         })
     }
@@ -206,30 +210,36 @@ export class FBXComponent extends ObjectComponent {
     providers: [{provide: ObjectComponent, useExisting: forwardRef(() => TerrainComponent) }]
 })
 export class TerrainComponent extends ObjectComponent {
-    @Input() terrain = null
     @Input() texture = null
     @Input() width: number = 60
     @Input() height: number = 60
     @Input() wPoints: number = 1
     @Input() hPoints: number = 1
+    data = []
 
-    manager = new THREE.LoadingManager()
-    data = [];
+    constructor() {
+        super()
+        this.manager = new THREE.LoadingManager()
+        this.loader = new THREE['TerrainLoader'](this.manager)
+    }
 
     ngOnInit() {
         let self = this
 
-        if (this.terrain) {
-            let terrainLoader = new THREE['TerrainLoader'](this.manager);
-
-            terrainLoader.load(this.terrain, function(data) {
-                self.data = data;
-            });
-        }
+        if (this.file === null) return
+        this.loader.load(this.file, function(data) {
+            self.data = data
+        })
 
         this.manager.onProgress = (item, loaded, total) => {
-            console.log(item)
-            console.log(`Loaded ${loaded} of ${total}`)
+            if (self.debug) {
+                console.log('Item being loaded:')
+                console.log(item)
+                console.log('Loaded:')
+                console.log(loaded)
+                console.log('Total:')
+                console.log(total)
+            }
         }
     }
 
