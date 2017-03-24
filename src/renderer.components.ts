@@ -5,6 +5,7 @@ import { CameraComponent } from './camera.components'
 import { AnimationService } from './services/animation.service'
 
 import * as THREE from 'three'
+import 'three/examples/js/loaders/collada/AnimationHandler.js'
 
 @Directive({ selector: 'three-renderer' })
 export class RendererComponent {
@@ -16,7 +17,8 @@ export class RendererComponent {
 
     renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
         antialias: true
-    });
+    })
+    clock: THREE.Clock = new THREE.Clock()
 
     get scene() {
         return this.sceneComp.scene
@@ -67,6 +69,18 @@ export class RendererComponent {
                 // prevent the object sitting on the Z axis to enter when moved the first
                 // time
                 if (s.object.geometry.name === 'Sphere') this.animService.updatePosition(s.object.position, s.animConfig)
+            })
+
+            this.sceneComp.objComps.toArray().forEach((o) => {
+                if (o['mixers'] && o['mixers'].length > 0) {
+                    o['mixers'].forEach((m) => {
+                        m.update(this.clock.getDelta())
+                    })
+                }
+
+                if (o['animations'] && o['animations'].length > 0) {
+                    THREE['AnimationHandler'].update(this.clock.getDelta())
+                }
             })
 
             // Camera animation
