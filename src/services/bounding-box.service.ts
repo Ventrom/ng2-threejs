@@ -10,8 +10,11 @@ export class BoundingBoxService {
 
     addBBoxToObject(object: THREE.Object3D) {
         let bbox = new THREE.Box3().setFromObject(object)
-        let size = bbox.getSize()
-        let center = bbox.getCenter()
+        //let size = bbox.getSize()
+        //let center = bbox.getCenter()
+        // For the Electron app
+        let size = bbox.size()
+        let center = bbox.center()
 
         // Adds the material and actually creates the mesh
         let material = new THREE.MeshBasicMaterial({
