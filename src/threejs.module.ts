@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common'
 import { RendererComponent } from './renderer.components'
 import { PerspectiveCameraComponent } from './camera.components'
 import { AmbientLightComponent, PointLightComponent, DirectionalLightComponent } from './light.components'
-import { SceneComponent } from './scene.components';
-import { TrackballControlsComponent, OrbitControlsComponent } from './control.components';
-import { ObjComponent, MtlComponent, ColladaComponent, FBXComponent, GLTFComponent, TerrainComponent } from './object.components';
+import { SceneComponent } from './scene.components'
+import { TrackballControlsComponent, OrbitControlsComponent } from './control.components'
+import { ObjComponent, SceneObjComponent, MtlComponent, ColladaComponent, FBXComponent, GLTFComponent, TerrainComponent } from './object.components'
 import { SphereComponent, PlaneComponent } from './primitive.components'
 import { SkyboxComponent } from './skybox.component'
 import { TextureComponent } from './texture.component'
@@ -24,6 +24,7 @@ import { SpriteService } from './services/sprite.service'
       TrackballControlsComponent,
       OrbitControlsComponent,
       ObjComponent,
+      SceneObjComponent,
       MtlComponent,
       ColladaComponent,
       FBXComponent,
@@ -52,6 +53,7 @@ import { SpriteService } from './services/sprite.service'
       TrackballControlsComponent,
       OrbitControlsComponent,
       ObjComponent,
+      SceneObjComponent,
       MtlComponent,
       ColladaComponent,
       FBXComponent,

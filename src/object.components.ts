@@ -1,17 +1,18 @@
 import { ContentChildren, Directive, Input, forwardRef, QueryList } from '@angular/core'
 import { BoundingBoxService } from './services/bounding-box.service'
 import { SpriteService } from './services/sprite.service'
+import { AnimationService } from './services/animation.service'
 import { dirname, basename } from 'path'
 
 import * as THREE from 'three'
-import 'three/examples/js/loaders/MTLLoader.js';
-import 'three/examples/js/loaders/OBJLoader.js';
-import 'three/examples/js/loaders/ColladaLoader.js';
-import 'three/examples/js/loaders/collada/Animation.js';
-import 'three/examples/js/loaders/collada/KeyFrameAnimation.js';
-import 'three/examples/js/loaders/collada/AnimationHandler.js';
-import 'three/examples/js/loaders/FBXLoader2.js';
-import 'three/examples/js/loaders/GLTFLoader.js';
+import 'three/examples/js/loaders/MTLLoader.js'
+import 'three/examples/js/loaders/OBJLoader.js'
+import 'three/examples/js/loaders/ColladaLoader.js'
+import 'three/examples/js/loaders/collada/Animation.js'
+import 'three/examples/js/loaders/collada/KeyFrameAnimation.js'
+import 'three/examples/js/loaders/collada/AnimationHandler.js'
+import 'three/examples/js/loaders/FBXLoader2.js'
+import 'three/examples/js/loaders/GLTFLoader.js'
 import './loaders/terrain-loader.js'
 
 export abstract class ObjectComponent {
@@ -38,11 +39,12 @@ export class ObjComponent extends ObjectComponent {
     @Input() addBBox: boolean = false
     @Input() addSprites: boolean = false
     @Input() scale: number = 1
-    bbox: THREE.Box3
-    bboxMesh: THREE.Mesh
+    mixers: THREE.AnimationMixer[] = []
     materials: THREE.Material[] = []
     objects: THREE.Object3D[] = []
     sprites: THREE.Sprite[] = []
+    bbox: THREE.Box3
+    bboxMesh: THREE.Mesh
     // Can't use the dynamic THREE['OBJLoader'] type here
     objLoader: any
 
@@ -116,6 +118,60 @@ export class ObjComponent extends ObjectComponent {
                 }
             })
         }
+    }
+}
+
+@Directive({
+    selector: 'three-sobj',
+    providers: [{provide: ObjectComponent, useExisting: forwardRef(() => SceneObjComponent) }]
+})
+export class SceneObjComponent extends ObjectComponent {
+    @Input() scale: number = 1
+    mixers: THREE.AnimationMixer[] = []
+    objects: THREE.Object3D[] = []
+    objLoader: THREE.ObjectLoader
+
+    constructor(
+        private animService: AnimationService
+    ) {
+        super()
+        this.manager = new THREE.LoadingManager()
+        this.objLoader = new THREE.ObjectLoader(this.manager)
+    }
+
+    ngAfterViewInit() {
+        let self = this
+
+        this.manager.onProgress = (item, loaded, total) => {
+            if (self.debug) {
+                console.log('Item being loaded:')
+                console.log(item)
+                console.log('Loaded:')
+                console.log(loaded)
+                console.log('Total:')
+                console.log(total)
+            }
+        }
+    }
+
+    attachScene(scene: THREE.Scene): void {
+        let self = this
+        self.objLoader.setTexturePath(dirname(self.file) + '/')
+        self.objLoader.load(self.file, function (object) {
+            object.scale.set(self.scale, self.scale, self.scale)
+            //TODO: make this an input, test for scale also
+            self.animService.rotateAroundWorldAxis(object, new THREE.Vector3(1,0,0), Math.PI/2)
+
+            // Create a mixer for this object
+            object['mixer'] = new THREE.AnimationMixer(object)
+            self.mixers.push(object['mixer'])
+
+            // Create an action for the animation to play
+            let action = object['mixer'].clipAction(object['animations'][0])
+            action.play()
+
+            scene.add(object)
+        })
     }
 }
 
