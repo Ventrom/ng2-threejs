@@ -1,7 +1,8 @@
-import { Directive, Input, forwardRef } from '@angular/core';
-import * as THREE from 'three';
-import 'three/examples/js/controls/TrackballControls.js';
-import 'three/examples/js/controls/OrbitControls.js';
+import { Directive, Input, forwardRef } from '@angular/core'
+
+import * as THREE from 'three'
+import 'three/examples/js/controls/TrackballControls.js'
+import 'three/examples/js/controls/OrbitControls.js'
 
 export abstract class ControlsComponent {
     @Input() enabled: boolean = true
@@ -63,12 +64,12 @@ export class OrbitControlsComponent extends ControlsComponent {
         this._controls.dampingFactor = 0.5
 
         // Prevents rotating below ground
-        this._controls.minPolarAngle = 0; // radians
-        this._controls.maxPolarAngle = Math.PI/2.5; // radians
+        this._controls.minPolarAngle = 0 // radians
+        this._controls.maxPolarAngle = Math.PI/2.5 // radians
 
         // Prevents zooming into the ground
         this._controls.minDistance = 200
-        this._controls.maxDistance = 1500
+        this._controls.maxDistance = 2500
     }
 
     updateControls(scene: THREE.Scene, camera: THREE.Camera): void {

@@ -14,6 +14,7 @@ import 'three/examples/js/loaders/collada/AnimationHandler.js'
 import 'three/examples/js/loaders/FBXLoader2.js'
 import 'three/examples/js/loaders/GLTFLoader.js'
 import './loaders/terrain-loader.js'
+import './loaders/JDLoader.min.js'
 
 export abstract class ObjectComponent {
     @Input() file: string
@@ -155,9 +156,10 @@ export class SceneObjComponent extends ObjectComponent {
     }
 
     attachScene(scene: THREE.Scene): void {
+        if (this.file === null) return
         let self = this
-        self.objLoader.setTexturePath(dirname(self.file) + '/')
-        self.objLoader.load(self.file, function (object) {
+        //this.objLoader.setTexturePath(dirname(this.file) + '/')
+        this.objLoader.load(this.file, function (object) {
             object.scale.set(self.scale, self.scale, self.scale)
             //TODO: make this an input, test for scale also
             self.animService.rotateAroundWorldAxis(object, new THREE.Vector3(1,0,0), Math.PI/2)
@@ -181,6 +183,10 @@ export class SceneObjComponent extends ObjectComponent {
     providers: [{provide: ObjectComponent, useExisting: forwardRef(() => ColladaComponent) }]
 })
 export class ColladaComponent extends ObjectComponent {
+    @Input() scale: number = 1
+    // Not using the dynamic type THREE.Animation here
+    animations: any[] = []
+
     constructor() {
         super()
         // This loader does not accept a manager as a parameter
@@ -189,8 +195,20 @@ export class ColladaComponent extends ObjectComponent {
 
     attachScene(scene: THREE.Scene): void {
         if (this.file === null) return
+        let self = this
         this.loader.load(this.file, function (object) {
-            scene.add(object.scene)
+            let dae = object.scene
+            dae.scale.set(self.scale, self.scale, self.scale)
+            dae.traverse( function ( child ) {
+                if (child instanceof THREE.SkinnedMesh) {
+                    self.animations.push(new THREE['Animation'](child, child.geometry['animation']))
+                    self.animations[self.animations.length-1].play()
+                }
+            })
+            dae.scale.x = dae.scale.y = dae.scale.z = self.scale
+            dae.updateMatrix()
+
+            scene.add(dae)
         })
     }
 }
@@ -200,6 +218,9 @@ export class ColladaComponent extends ObjectComponent {
     providers: [{provide: ObjectComponent, useExisting: forwardRef(() => FBXComponent) }]
 })
 export class FBXComponent extends ObjectComponent {
+    @Input() scale: number = 1
+    mixers: THREE.AnimationMixer[] = []
+
     constructor() {
         super()
         this.manager = new THREE.LoadingManager()
@@ -208,8 +229,59 @@ export class FBXComponent extends ObjectComponent {
 
     attachScene(scene: THREE.Scene): void {
         if (this.file === null) return
+        let self = this
         this.loader.load(this.file, function (object) {
+            // Create a mixer for this object
+            object['mixer'] = new THREE.AnimationMixer(object)
+            self.mixers.push(object['mixer'])
+
+            // Create an action for the animation to play
+            let action = object['mixer'].clipAction(object['animations'][0])
+            action.play()
+
             scene.add(object)
+        })
+    }
+}
+
+@Directive({
+    selector: 'three-json',
+    providers: [{provide: ObjectComponent, useExisting: forwardRef(() => JSONComponent) }]
+})
+export class JSONComponent extends ObjectComponent {
+    @Input() scale: number = 1
+    mixers: THREE.AnimationMixer[] = []
+
+    constructor(
+        private animService: AnimationService
+    ) {
+        super()
+        this.manager = new THREE.LoadingManager()
+        this.loader = new THREE['JDLoader'](this.manager)
+    }
+
+    attachScene(scene: THREE.Scene): void {
+        if (this.file === null) return
+        let self = this
+        this.loader.load(this.file, function (data) {
+            // The loader creates a MeshPhongMaterial array by default,
+            // If a ShaderMaterial is needed, use data.jd_materials
+            let multiMaterial = new THREE.MultiMaterial(data.materials)
+
+            data.geometries.forEach((g, i) => {
+                let mesh = new THREE.SkinnedMesh(g, multiMaterial)
+                self.animService.rotateAroundWorldAxis(mesh, new THREE.Vector3(1,0,0), Math.PI/2)
+                self.animService.rotateAroundObjectAxis(mesh, new THREE.Vector3(0,1,0), Math.PI)
+                mesh.scale.set(self.scale, self.scale, self.scale)
+                scene.add(mesh)
+
+                if (mesh.geometry['animations'])
+                {
+                    let mixer = new THREE.AnimationMixer(mesh)
+                    self.mixers.push(mixer)
+                    mixer.clipAction(mesh.geometry['animations'][0]).play()
+                }
+            })
         })
     }
 }
@@ -219,24 +291,25 @@ export class FBXComponent extends ObjectComponent {
     providers: [{provide: ObjectComponent, useExisting: forwardRef(() => GLTFComponent) }]
  })
  export class GLTFComponent extends ObjectComponent {
-     @Input() gltfFile = null;
+    constructor() {
+        super()
+        this.loader = new THREE['GLTFLoader']()
+    }
 
-     attachScene(scene: THREE.Scene): void {
-         if (this.gltfFile === null) return
-         let loader = new THREE['GLTFLoader']();
-         loader.load(this.gltfFile, function (gltf) {
-             var object = gltf.scene !== undefined ? gltf.scene : gltf.scenes[ 0 ];
-             var animations = gltf.animations;
-             if ( animations && animations.length ) {
-                 var mixer = new THREE.AnimationMixer( object );
-                 for ( var i = 0; i < animations.length; i ++ ) {
-                     var animation = animations[ i ];
-                     mixer.clipAction( animation ).play();
-                 }
-             }
-             scene.add(object);
-         });
-     }
+    attachScene(scene: THREE.Scene): void {
+        if (this.file === null) return
+        this.loader.load(this.file, function (gltf) {
+            let object = gltf.scene !== undefined ? gltf.scene : gltf.scenes[0]
+            let animations = gltf.animations
+            if (animations && animations.length) {
+                let mixer = new THREE.AnimationMixer(object)
+                animations.forEach((a) => {
+                    mixer.clipAction(a).play()
+                })
+            }
+            scene.add(object)
+         })
+    }
 }
 
 @Directive({
@@ -244,14 +317,19 @@ export class FBXComponent extends ObjectComponent {
     providers: [{provide: ObjectComponent, useExisting: forwardRef(() => TerrainComponent) }]
 })
 export class TerrainComponent extends ObjectComponent {
-    @Input() texture = null
+    @Input() textureUrl: string
     @Input() width: number = 60
     @Input() height: number = 60
     @Input() wPoints: number = 1
     @Input() hPoints: number = 1
+    @Input() addSprites: boolean = false
+    sprites: THREE.Sprite[] = []
     data = []
 
-    constructor() {
+    constructor(
+        private bboxService: BoundingBoxService,
+        private spriteService: SpriteService
+    ) {
         super()
         this.manager = new THREE.LoadingManager()
         this.loader = new THREE['TerrainLoader'](this.manager)
@@ -281,18 +359,33 @@ export class TerrainComponent extends ObjectComponent {
         let self = this
         this.manager.onLoad = () => {
             let geometry = new THREE.PlaneGeometry(this.width, this.height, this.wPoints-1, this.hPoints-1)
+            geometry.name = "Plane"
 
             for (let i = 0, l = geometry.vertices.length; i < l; i++) {
                 geometry.vertices[i].z = self.data[i] / 65535 * 2
             }
 
             let material = new THREE.MeshPhongMaterial(
-                this.texture ?
-                    {map: new THREE.TextureLoader().load(this.texture)} :
+                this.textureUrl ?
+                    {map: new THREE.TextureLoader().load(this.textureUrl), shininess: 5} :
                     {color: 0xdddddd, wireframe: true})
 
             let plane = new THREE.Mesh(geometry, material)
             scene.add(plane)
+
+            if (self.addSprites) {
+                // Add sprites to the plane geometry
+                self.sprites = self.spriteService.addSpritesToGeometry(geometry, [
+                    { msg: 'Test', mpos: new THREE.Vector3(-1500, 1500, 0) },
+                    { msg: 'Test 2', mpos: new THREE.Vector3(1500, -1500, 0) }
+                ])
+
+                self.sprites.forEach((s) => {
+                    s.scale.set(s.scale.x * 10, s.scale.y * 10, 1)
+                    s.position.set(s.position.x, s.position.y, s.position.z + 50)
+                    scene.add(s)
+                })
+            }
         }
     }
 }

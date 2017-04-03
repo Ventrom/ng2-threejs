@@ -59,11 +59,13 @@ export class RendererComponent {
     }
 
     render() {
+        let self = this
         this.controlsComps.forEach((cc) => {
             cc.updateControls(this.scene, this.camera)
         })
 
         requestAnimationFrame(() => {
+            let delta = self.clock.getDelta()
             this.sceneComp.priComps.toArray().forEach((s) => {
                 // If the object is sitting at the X axis, the second condition is to
                 // prevent the object sitting on the Z axis to enter when moved the first
@@ -73,13 +75,15 @@ export class RendererComponent {
 
             this.sceneComp.objComps.toArray().forEach((o) => {
                 if (o['mixers'] && o['mixers'].length > 0) {
+                    //console.log("hummm %s", delta)
                     o['mixers'].forEach((m) => {
-                        m.update(this.clock.getDelta())
+                        m.update(0.2)
+                        //m.update(self.clock.getDelta())
                     })
                 }
 
                 if (o['animations'] && o['animations'].length > 0) {
-                    THREE['AnimationHandler'].update(this.clock.getDelta())
+                    THREE['AnimationHandler'].update(self.clock.getDelta())
                 }
             })
 

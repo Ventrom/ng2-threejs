@@ -7,6 +7,7 @@ export abstract class PrimitiveComponent {
     @Input() textureUrl?: string
     @Input() wSegments: number = 256
     @Input() hSegments: number = 256
+    @Input() position: THREE.Vector3 = new THREE.Vector3()
     @Input() animConfig: AnimationConfig
 
     abstract get object(): THREE.Mesh
@@ -40,6 +41,7 @@ export class SphereComponent extends PrimitiveComponent {
         let geometry = new THREE.SphereGeometry(this.sphereSize, this.wSegments, this.hSegments)
         geometry.name = 'Sphere'
         let sphere = new THREE.Mesh(geometry, material)
+        sphere.position.set(this.position[0], this.position[1], this.position[2])
 
         this.object = sphere
     }

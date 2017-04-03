@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core'
+import { MessageObject } from '../interfaces/sprite.interface'
 
 import * as THREE from 'three'
 
@@ -53,6 +54,41 @@ export class SpriteService {
                 console.log(sPos)
                 console.log('Current sprite info: ')
                 console.log(spritesArray[i])
+            }
+        })
+
+        return spritesArray
+    }
+
+    // Adds a text message to a custom position in a geometry. X and Y values can vary from 0 to 1, normalized by
+    // the geometry width and height. Only the plane is supported for now
+    addSpritesToGeometry(geometry: THREE.Geometry | THREE.BufferGeometry, msgObj?: MessageObject[], debug?: boolean) {
+        // Only supported geometry is plane for now
+        if (geometry.name !== 'Plane') return
+
+        // Add an empty sprite array and populate it with a sprite for each message
+
+        if (!msgObj) return this.addSpritesToFaces(geometry, 'center')
+
+        let spritesArray = []
+        msgObj.forEach((mo, i) => {
+            if (mo.msg && mo.mpos) {
+                let sPos = new THREE.Vector3(mo.mpos.x, mo.mpos.y, mo.mpos.z)
+
+                // Make the sprites a bit far from the mesh
+                sPos = sPos.multiplyScalar(1.2)
+
+                // The first parameter is the text message to be used on the sprite. At the moment
+                // only a certain length of message is supported properly
+                spritesArray.push(this.createTextSprite(
+                    mo.msg,
+                    { fontsize: 32, backgroundColor: {r:100, g:100, b:255, a:1} },
+                    sPos
+                ))
+                if (debug) {
+                    console.log('Current sprite info: ')
+                    console.log(spritesArray[i])
+                }
             }
         })
 
