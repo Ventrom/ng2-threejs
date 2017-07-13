@@ -17,10 +17,11 @@
   },
   "homepage": "https://github.com/Ventrom/ng2-threejs#readme",
   "dependencies": {
-    "@angular/common": "^2.4.4",
-    "@angular/core": "^2.4.4",
+    "@angular/common": "^4.1.0",
+    "@angular/core": "^4.1.0",
     "rxjs": "^5.0.1",
-    "three": "^0.84.0"
+    "three": "^0.84.0",
+    "zone.js": "^0.8.13"
   },
   "devDependencies": {
     "typescript": "^2.0.3"
